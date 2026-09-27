@@ -23,6 +23,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AppBarWithSearch
 import androidx.compose.material3.ExpandedDockedSearchBarWithGap
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuDefaults.textFieldColors
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
@@ -31,6 +32,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.motionScheme
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SearchBarColors
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.SearchBarDefaults.appBarWithSearchColors
 import androidx.compose.material3.SearchBarState
@@ -39,8 +41,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
-import androidx.compose.material3.rememberContainedSearchBarState
-import androidx.compose.material3.rememberSearchBarWithGapState
+import androidx.compose.material3.rememberSearchBarState
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
@@ -76,27 +77,51 @@ class MainActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DockedSearchBar() {
-    /********************  Small screens **********************/
-//                ExpandedFullScreenContainedSearchBar() { }
+    /******************** Search Bar ***********************/
+//                SearchBar ----------- Baseline Implementation
+//                AppBarWithSearch ---- Builds on top of SearchBar but enables adding scroll
+//                                      behaviors and behaves more like a top TopAppBar since it
+//                                      draws a surface around the search input and also enables
+//                                      actions which is something that the previous implementation
+//                                      didn't have and makes it feel more like a top app bar. This
+//                                      implementation has a weird behavior, remember android
+//                                      require apps to be edge-to-edge, and as mentioned, this
+//                                      search draws a surface around the search input but it
+//                                      doesn't draws the same color on the system's status bar which is something that a top app bar will do for us
+
+    /******************** Search view for Small screens **********************/
+//                ExpandedFullScreenSearchBar ------------ Divided Style
+//                ExpandedFullScreenContainedSearchBar --- Contained Style
 
 
-    /********************  Medium and large screens **********************/
-//                ExpandedDockedSearchBar(
+    /******************** Search view for Medium and large screens **********************/
+//                ExpandedDockedSearchBar ---------------- Divided Style
+//                ExpandedDockedSearchBarWithGap --------- Contained Style
 //
-//                )
 
     val textFieldState = rememberTextFieldState()
-    val dockedSearchBarState = rememberContainedSearchBarState()
+    val dockedSearchBarState = rememberSearchBarState()
     val scope = rememberCoroutineScope()
     val scrollBehavior = SearchBarDefaults.enterAlwaysSearchBarScrollBehavior()
-    val appBarWithSearchColors = appBarWithSearchColors()
+    val appBarWithSearchColors = appBarWithSearchColors(
+        searchBarColors = SearchBarColors(
+            containerColor = Color(0xFFEFB8C8),  // the container color of the search bar(seems to never be applied)
+            dividerColor = Color.Red,            // the color of the divider between the input field and the search results(divided style only)
+            inputFieldColors = textFieldColors() // colors applied to the input field
+        ),
+        scrolledSearchBarContainerColor = Color(0xFFF4511E), // color of the text input when scrolling back in by nested scroll to color it differently before it scrolls out set SearchBarColors.containerColor in the searchBarColors param
+        appBarContainerColor = Color(0xFF3949AB), // surface around the input text field when not scrolled out by nested scroll
+        scrolledAppBarContainerColor = Color(0xFFFDD835), // surface around the input text field when scrolling back in by nested scroll
+        appBarNavigationIconColor = Color(0xFFA5D6A7),
+        appBarActionIconColor = Color(0xFFBA68C8)
+    )
 
     val inputField =
         @Composable {
             SearchBarDefaults.InputField(
                 textFieldState = textFieldState,
                 searchBarState = dockedSearchBarState,
-                colors = appBarWithSearchColors.searchBarColors.inputFieldColors, // or  inputFieldColors() or TextFieldDefaults.colors
+//                colors = appBarWithSearchColors.searchBarColors.inputFieldColors, // or  inputFieldColors() or TextFieldDefaults.colors
                 onSearch = { scope.launch { dockedSearchBarState.animateToCollapsed() } },
                 placeholder = {
                     Text(modifier = Modifier.clearAndSetSemantics {}, text = "Search")
