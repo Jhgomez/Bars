@@ -41,7 +41,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.rememberContainedSearchBarState
+import androidx.compose.material3.rememberSearchBarScrollState
 import androidx.compose.material3.rememberSearchBarState
+import androidx.compose.material3.rememberSearchBarWithGapState
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
@@ -74,10 +77,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun DockedSearchBar() {
-    /******************** Search Bar ***********************/
+/******************** Search Bar ***********************/
 //                SearchBar ----------- Baseline Implementation
 //                AppBarWithSearch ---- Builds on top of SearchBar but enables adding scroll
 //                                      behaviors and behaves more like a top TopAppBar since it
@@ -86,26 +86,56 @@ fun DockedSearchBar() {
 //                                      didn't have and makes it feel more like a top app bar. This
 //                                      implementation has a weird behavior, remember android
 //                                      require apps to be edge-to-edge, and as mentioned, this
-//                                      search draws a surface around the search input but it
-//                                      doesn't draws the same color on the system's status bar which is something that a top app bar will do for us
+//                                      search draws a surface around the search input, but it
+//                                      doesn't draw the same color on the system's status bar;
+//                                      which is something that a top app bar will do for us
+//                                      automatically, and this also happens when the bar is being
+//                                      scrolled back in by the nested scroll behavior, all this
+//                                      together(scroll behavior, edge-to-edge viewport and the
+//                                      exclusive coloring of search bar), causes something that
+//                                      feels kind of weird at least to me, and that the material3
+//                                      documentation doesn't seem to talk about, and it is that the
+//                                      scrollable content that drives the nested scroll behavior
+//                                      will be obscured by the search bar but not by status bar,
+//                                      again, this doesn't happen when using collapsible top bars,
+//                                      so I could try nesting the search bar inside an actual top
+//                                      bar or color the status bar but I would need to make it
+//                                      transparent when the scroll bar is scrolled out, or I could
+//                                      ask to the material team somehow if this is the expected
+//                                      behavior and just let it be.
 
-    /******************** Search view for Small screens **********************/
+/******************** **********************/
+//                All below three functions create a SearchBarState, it lets us control programmatically
+//                if the search view is shown or not, also recompose if its state is collapsed(when
+//                the search view, meaning the results list, is not visible) or not and show some
+//                icon or not based on its current state as in this example
+
+//                rememberSearchBarState()
+//                rememberContainedSearchBarState()
+//                rememberSearchBarWithGapState()
+
+/******************** Search view for Small screens **********************/
 //                ExpandedFullScreenSearchBar ------------ Divided Style
 //                ExpandedFullScreenContainedSearchBar --- Contained Style
 
 
-    /******************** Search view for Medium and large screens **********************/
+/******************** Search view for Medium and large screens **********************/
 //                ExpandedDockedSearchBar ---------------- Divided Style
 //                ExpandedDockedSearchBarWithGap --------- Contained Style
 //
-
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DockedSearchBar() {
     val textFieldState = rememberTextFieldState()
     val dockedSearchBarState = rememberSearchBarState()
+    val searchBarScrollBehaviorScrollState = rememberSearchBarScrollState()
     val scope = rememberCoroutineScope()
-    val scrollBehavior = SearchBarDefaults.enterAlwaysSearchBarScrollBehavior()
+    val scrollBehavior = SearchBarDefaults.enterAlwaysSearchBarScrollBehavior(
+        scrollState = searchBarScrollBehaviorScrollState
+    )
     val appBarWithSearchColors = appBarWithSearchColors(
         searchBarColors = SearchBarColors(
-            containerColor = Color(0xFFEFB8C8),  // the container color of the search bar(seems to never be applied)
+            containerColor = Color(0xFFEFB8C8),  // the color of the search input container(meaning, not the area visibly around the input field)
             dividerColor = Color.Red,            // the color of the divider between the input field and the search results(divided style only)
             inputFieldColors = textFieldColors() // colors applied to the input field
         ),
@@ -121,6 +151,7 @@ fun DockedSearchBar() {
             SearchBarDefaults.InputField(
                 textFieldState = textFieldState,
                 searchBarState = dockedSearchBarState,
+                // If I set it up from here it seems like its color wont be driven by the SearchBarState and colors assigned to AppBarWithSearch
 //                colors = appBarWithSearchColors.searchBarColors.inputFieldColors, // or  inputFieldColors() or TextFieldDefaults.colors
                 onSearch = { scope.launch { dockedSearchBarState.animateToCollapsed() } },
                 placeholder = {
