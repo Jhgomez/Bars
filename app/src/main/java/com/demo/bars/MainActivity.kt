@@ -40,6 +40,7 @@ import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberContainedSearchBarState
+import androidx.compose.material3.rememberSearchBarWithGapState
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
@@ -106,7 +107,7 @@ fun DockedSearchBar() {
         }
 
     Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        modifier = Modifier.fillMaxSize().nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             AppBarWithSearch(
                 scrollBehavior = scrollBehavior,
@@ -121,7 +122,7 @@ fun DockedSearchBar() {
             ExpandedDockedSearchBarWithGap(
                 state = dockedSearchBarState,
                 inputField = inputField,
-                modifier = Modifier.fillMaxSize(),
+//                modifier = Modifier.fillMaxSize(), // you may want to use the default size here
                 shape = MaterialTheme.shapes.extraLarge,
                 dropdownShape = MaterialTheme.shapes.medium,
                 dropdownGapSize = 8.dp,
@@ -133,13 +134,13 @@ fun DockedSearchBar() {
                     focusable = true,
                     dismissOnBackPress = true,
                     dismissOnClickOutside = true,
-                    clippingEnabled = true, // false
-                    usePlatformDefaultWidth = true,
+                    clippingEnabled = false, // this one is very important, if true, we could get a weird behavior
+                    usePlatformDefaultWidth = false, // default with could limit your list size so most likely you want it to be false
                     excludeFromSystemGesture = true,
                     windowType = WindowManager.LayoutParams.TYPE_APPLICATION_SUB_PANEL,
                     windowToken = null, // IBinder type
-                    blurBehindRadius = 16.dp,
-                    scrimAlpha = 50f,
+                    blurBehindRadius = 8.dp,
+                    scrimAlpha = .32f,
                 )
             ) {
                 SearchResults(
