@@ -1,3 +1,3 @@
-![ScrollBehavior](./resources/scrollBehavior.webm)
+[![ScrollBehavior](./behavior.png)](./resources/scrollBehavior.webm)
 
-[![ScrollBehavior]](./resources/stateChange.webm)
+[![statechange](./statechange.png)](./resources/stateChange.webm)
