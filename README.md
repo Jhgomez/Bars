@@ -2,7 +2,7 @@ Here I showcase an `AppBarWithSearch` which works as its name says, an app bar(t
 didn't have the ability to add actions/icons and didn't have the look of a top bar(the surface surounding it is always transparent). And I use it along
 the new docked search view(the container of search results) that implements the material expressive search "contained" style 
 `ExpandedDockedSearchBarWithGap`, these new implementations are available in the version 1.5.0 of compose material3 library which is still in alpha
-as of 9/27/26, the current stable version is 1.4.0
+as of 9/27/26, the current stable version is 1.4.0. Click images to download videos
 
 [![ScrollBehavior](./behavior.png)](./resources/scrollBehavior.webm)
 
